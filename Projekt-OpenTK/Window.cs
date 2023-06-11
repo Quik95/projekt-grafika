@@ -16,16 +16,16 @@ internal enum CameraType
 
 public class Window : GameWindow
 {
-    private                 AirplaneModel  _airplane;
-    private                 AirplaneCamera _airplaneCamera;
-    private                 Camera         _camera;
-    private                 CameraType     _cameraType = CameraType.FPS;
-    private                 bool           _firstMove  = true;
-    private                 Ground         _ground;
-    private                 Vector2        _lastPos;
-    private                 Skybox         _skybox;
-    private                 const int            BuildingCount = 500;
-    private BuildingEntity[] _buildings;
+    private const int              BuildingCount = 500;
+    private       AirplaneModel    _airplane;
+    private       AirplaneCamera   _airplaneCamera;
+    private       BuildingEntity[] _buildings;
+    private       Camera           _camera;
+    private       CameraType       _cameraType = CameraType.FPS;
+    private       bool             _firstMove  = true;
+    private       Ground           _ground;
+    private       Vector2          _lastPos;
+    private       Skybox           _skybox;
 
     public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
@@ -49,7 +49,7 @@ public class Window : GameWindow
         _airplane       = new AirplaneModel();
         _skybox         = new Skybox();
         _ground         = new Ground();
-        var buildingModel      = new BuildingModel();
+        var buildingModel = new BuildingModel();
         _buildings = Enumerable.Range(1, BuildingCount)
                                .Select(_ => new BuildingEntity(buildingModel))
                                .ToArray();
@@ -78,12 +78,18 @@ public class Window : GameWindow
                                    CameraType.FPS      => _camera.GetProjectionMatrix(),
                                    _                   => throw new ArgumentOutOfRangeException()
                                };
+        var cameraPosition = _cameraType switch
+                             {
+                                 CameraType.Airplane => _airplane.Position + _airplaneCamera.Offset,
+                                 CameraType.FPS      => _camera.Position,
+                                 _                   => throw new ArgumentOutOfRangeException()
+                             };
 
-        _airplane.Draw(viewMatrix, projectionMatrix);
+        _airplane.Draw(cameraPosition, viewMatrix, projectionMatrix);
         _ground.Draw(viewMatrix, projectionMatrix);
         _skybox.Draw(viewMatrix, projectionMatrix);
         foreach (var building in _buildings)
-            building.Draw(viewMatrix, projectionMatrix);
+            building.Draw(cameraPosition, viewMatrix, projectionMatrix);
 
         SwapBuffers();
     }
@@ -99,7 +105,7 @@ public class Window : GameWindow
 
         if (input.IsKeyDown(Keys.Escape)) Close();
 
-        const float cameraSpeed = 5.5f;
+        const float cameraSpeed = 20.5f;
         const float sensitivity = 0.2f;
 
         if (input.IsKeyDown(Keys.W)) _camera.Position += _camera.Front * cameraSpeed * (float) e.Time; // Forward
@@ -160,8 +166,11 @@ public class Window : GameWindow
             }
         }
 
-        _airplane.Position += _airplaneCamera.Front * _airplane.Speed * (float) e.Time;
-        _airplane.UpdateRotation(_airplaneCamera.Yaw, _airplaneCamera.Pitch);
+        if (_cameraType is CameraType.Airplane)
+        {
+            _airplane.Position += _airplaneCamera.Front * _airplane.Speed * (float) e.Time;
+            _airplane.UpdateRotation(_airplaneCamera.Yaw, _airplaneCamera.Pitch);
+        }
     }
 
     // In the mouse wheel function, we manage all the zooming of the camera.

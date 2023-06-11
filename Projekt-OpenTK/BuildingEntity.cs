@@ -16,9 +16,9 @@ public class BuildingEntity
         _position = new Vector3(x, -10f, z);
     }
 
-    public void Draw(Matrix4 viewMatrix, Matrix4 projectionMatrix)
+    public void Draw(Vector3 cameraPosition, Matrix4 viewMatrix, Matrix4 projectionMatrix)
     {
         _model.Position = _position;
-        _model.Draw(viewMatrix, projectionMatrix);
+        _model.Draw(cameraPosition, viewMatrix, projectionMatrix);
     }
 }

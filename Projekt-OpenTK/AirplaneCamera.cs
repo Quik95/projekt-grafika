@@ -4,15 +4,15 @@ namespace FlightSim;
 
 public class AirplaneCamera
 {
-    private readonly Vector3 _offset;
-    private          float   _fov   = MathHelper.DegreesToRadians(60);
-    private          Vector3 _front = -Vector3.UnitZ;
-    private          float   _pitch;
-    private          float   _yaw = -MathHelper.PiOver2;
+    public readonly Vector3 Offset;
+    private         float   _fov   = MathHelper.DegreesToRadians(60);
+    private         Vector3 _front = -Vector3.UnitZ;
+    private         float   _pitch;
+    private         float   _yaw = -MathHelper.PiOver2;
 
     public AirplaneCamera(Vector3 offset, float aspectRatio)
     {
-        _offset     = offset;
+        Offset      = offset;
         AspectRatio = aspectRatio;
     }
 
@@ -56,7 +56,7 @@ public class AirplaneCamera
 
     public Matrix4 GetViewMatrix(Vector3 target)
     {
-        return Matrix4.LookAt(target + _offset, target, Vector3.UnitY);
+        return Matrix4.LookAt(target + Offset, target, Vector3.UnitY);
     }
 
     public Matrix4 GetProjectionMatrix()
