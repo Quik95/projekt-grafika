@@ -26,11 +26,11 @@ public class Ground : IDisposable
         VBO                                 = new BufferObject<float>(groundVertices, BufferTarget.ArrayBuffer);
         EBO                                 = new BufferObject<uint>(groundIndices, BufferTarget.ElementArrayBuffer);
         VAO                                 = new VertexArrayObject<float, uint>(VBO, EBO);
-        
+
         VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 8, 0);
         VAO.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, 8, 3);
         VAO.VertexAttributePointer(2, 2, VertexAttribPointerType.Float, 8, 6);
-        
+
         _shader        = new Shader("Shaders/ground.vert", "Shaders/shader_diffuse_only.frag");
         _groundTexture = new Texture(GroundTextureSource);
     }
@@ -55,7 +55,7 @@ public class Ground : IDisposable
         for (var j = 0; j < VertexCount; j++)
         {
             var offset = vertexPointer * bufferStride;
-            vertices[offset + 0]     = j / ((float) VertexCount - 1) * Size;
+            vertices[offset + 0] = j / ((float) VertexCount - 1) * Size;
             vertices[offset + 1] = 0;
             vertices[offset + 2] = i / ((float) VertexCount - 1) * Size;
 
@@ -91,10 +91,14 @@ public class Ground : IDisposable
     public void Draw(Matrix4 view, Matrix4 projection)
     {
         VAO.Bind();
+        EBO.Bind();
+        VBO.Bind();
+
         _shader.Use();
         _shader.SetUniform("view", view);
         _shader.SetUniform("projection", projection);
-        _shader.SetUniform("model", Matrix4.Identity * Matrix4.CreateTranslation(-(float)Size / 2, -10, -(float)Size / 2));
+        _shader.SetUniform(
+            "model", Matrix4.Identity * Matrix4.CreateTranslation(-(float) Size / 2, -10, -(float) Size / 2));
 
         _groundTexture.Bind();
         GL.DrawElements(PrimitiveType.Triangles, _groundIndicesLength, DrawElementsType.UnsignedInt, 0);

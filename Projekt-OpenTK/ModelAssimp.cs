@@ -60,8 +60,6 @@ public class ModelAssimp : IDisposable
         for (uint i = 0; i < mesh->MNumVertices; i++)
         {
             var vertex = new Vertex();
-            vertex.BoneIds = new int[Vertex.MAX_BONE_INFLUENCE];
-            vertex.Weights = new float[Vertex.MAX_BONE_INFLUENCE];
             var
                 vector = new Vector3(); // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
             // positions

@@ -16,14 +16,27 @@ internal enum CameraType
 
 public class Window : GameWindow
 {
-    private AirplaneModel  _airplane;
-    private AirplaneCamera _airplaneCamera;
-    private Camera         _camera;
-    private CameraType     _cameraType = CameraType.FPS;
-    private bool           _firstMove  = true;
-    private Ground         _ground;
-    private Vector2        _lastPos;
-    private Skybox         _skybox;
+    private static readonly (int X, int Z) BuildingPositionBounds = (-1000, 1000);
+    private                 AirplaneModel  _airplane;
+    private                 AirplaneCamera _airplaneCamera;
+    private                 BuildingModel  _building;
+    private                 Camera         _camera;
+    private                 CameraType     _cameraType = CameraType.FPS;
+    private                 bool           _firstMove  = true;
+    private                 Ground         _ground;
+    private                 Vector2        _lastPos;
+    private                 Skybox         _skybox;
+    private                 int            BuildingCount = 300;
+
+    private (int X, int Z)[] BuildingsPositions = Enumerable.Range(1, 100)
+                                                            .Select(_ => (
+                                                                             Random.Shared.Next(
+                                                                                 BuildingPositionBounds.X,
+                                                                                 BuildingPositionBounds.Z),
+                                                                             Random.Shared.Next(
+                                                                                 BuildingPositionBounds.X,
+                                                                                 BuildingPositionBounds.Z))
+                                                             ).ToArray();
 
     public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
@@ -47,6 +60,7 @@ public class Window : GameWindow
         _airplane       = new AirplaneModel();
         _skybox         = new Skybox();
         _ground         = new Ground();
+        _building       = new BuildingModel();
 
         CursorState = CursorState.Grabbed;
 #if DEBUG
@@ -76,6 +90,13 @@ public class Window : GameWindow
         _airplane.Draw(viewMatrix, projectionMatrix);
         _ground.Draw(viewMatrix, projectionMatrix);
         _skybox.Draw(viewMatrix, projectionMatrix);
+
+        foreach (var (x, z) in BuildingsPositions)
+        {
+            _building.Position = new Vector3(x, -10f, z);
+            _building.Draw(viewMatrix, projectionMatrix);
+        }
+
         SwapBuffers();
     }
 
