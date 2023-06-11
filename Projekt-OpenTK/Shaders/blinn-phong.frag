@@ -2,31 +2,31 @@
 out vec4 FragColor;
 
 in VS_OUT {
-    vec3 FragPos;
-    vec3 Normal;
-    vec2 TexCoords;
+//    vec3 FragPos;
+//    vec3 Normal;
+//    vec2 TexCoords;
+    vec2 aTexCoord;
+    vec4 l;
+    vec4 n;
+    vec4 v;
 } fs_in;
 
 layout (binding = 0) uniform sampler2D texture0;
-uniform vec3 lightPos;
-uniform vec3 viewPos;
 
 void main()
 {
-    vec3 color = texture(texture0, fs_in.TexCoords).rgb;
-    // ambient
-    vec3 ambient = 0.05 * color;
-    // diffuse
-    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-    vec3 normal = normalize(fs_in.Normal);
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * color;
-    // specular
-    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = 0.0;
-    vec3 halfwayDir = normalize(lightDir + viewDir);
-    spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-    vec3 specular = vec3(0.3) * spec;// assuming bright white light color
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    vec4 color = texture(texture0, fs_in.aTexCoord);
+    
+    vec4 ml = normalize(fs_in.l);
+    vec4 mn = normalize(fs_in.n);
+    vec4 mv = normalize(fs_in.v);
+    
+    vec4 r = reflect(-ml, mn);
+    float nl = clamp(dot(mn, ml), 0, 1);
+    float rv = pow(clamp(dot(r, mv), 0, 1), 47);
+    
+    vec4 ks = vec4(1, 1, 1, 1);
+    
+//    FragColor = color * nl + rv;
+    FragColor = vec4(color.rgb * nl, color.a) + vec4(ks.rgb*rv, 0);
 }

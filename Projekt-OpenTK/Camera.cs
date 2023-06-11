@@ -4,7 +4,7 @@ namespace FlightSim;
 
 public class Camera
 {
-    private float   _fov   = MathHelper.PiOver2;
+    private float   _fov   = MathHelper.DegreesToRadians(60);
     private Vector3 _front = -Vector3.UnitZ;
     private float   _pitch;
     private float   _yaw = -MathHelper.PiOver2;
@@ -60,7 +60,7 @@ public class Camera
 
     public Matrix4 GetProjectionMatrix()
     {
-        return Matrix4.CreatePerspectiveFieldOfView(_fov, AspectRatio, 0.01f, 100f);
+        return Matrix4.CreatePerspectiveFieldOfView(_fov, AspectRatio, 1f, 100000f);
     }
 
     private void UpdateVectors()
