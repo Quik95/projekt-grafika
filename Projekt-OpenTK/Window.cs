@@ -43,12 +43,10 @@ public class Window : GameWindow
         var aspectRatio = Size.X / (float) Size.Y;
         _camera = new Camera(Vector3.UnitZ * 3, aspectRatio);
 
-        _airplaneCamera = new AirplaneCamera(new Vector3(0.0f, 6.5f, 10.0f), aspectRatio,
-                                             Matrix4.Identity * Matrix4.CreateScale(0.01f) *
-                                             Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-90f)));
-        _airplane = new AirplaneModel();
-        _skybox   = new Skybox();
-        _ground   = new Ground();
+        _airplaneCamera = new AirplaneCamera(new Vector3(0.0f, 6.5f, 10.0f), aspectRatio);
+        _airplane       = new AirplaneModel();
+        _skybox         = new Skybox();
+        _ground         = new Ground();
 
         CursorState = CursorState.Grabbed;
 #if DEBUG
@@ -64,7 +62,7 @@ public class Window : GameWindow
 
         var viewMatrix = _cameraType switch
                          {
-                             CameraType.Airplane => _airplaneCamera.GetViewMatrix(),
+                             CameraType.Airplane => _airplaneCamera.GetViewMatrix(_airplane.Position),
                              CameraType.FPS      => _camera.GetViewMatrix(),
                              _                   => throw new ArgumentOutOfRangeException()
                          };
@@ -153,8 +151,8 @@ public class Window : GameWindow
             }
         }
 
-
-        _airplaneCamera.Position += _airplaneCamera.Front * _airplane.Speed * (float) e.Time;
+        _airplane.Position += _airplaneCamera.Front * _airplane.Speed * (float) e.Time;
+        _airplane.UpdateRotation(_airplaneCamera.Yaw, _airplaneCamera.Pitch);
     }
 
     // In the mouse wheel function, we manage all the zooming of the camera.
