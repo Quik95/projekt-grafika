@@ -103,6 +103,8 @@ public class Skybox : IDisposable
         GL.Disable(EnableCap.CullFace);
 
         VAO.Bind();
+        EBO.Bind();
+        VBO.Bind();
 
         _shader.Use();
         _shader.SetUniform("view", new Matrix4(new Matrix3(view)));
