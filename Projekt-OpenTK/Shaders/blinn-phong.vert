@@ -19,7 +19,7 @@ uniform mat4 view;
 
 void main()
 {
-    vec4 lp = vec4(0, 0, 10, -1);
+    vec4 lp = vec4(0, 1000, 0, -1);
     vs_out.l = view * lp - view * model * vec4(aPosition, 1.0);
     vs_out.l = normalize(vs_out.l);
     

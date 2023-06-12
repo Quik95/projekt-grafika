@@ -3,12 +3,15 @@ using OpenTK.Mathematics;
 
 namespace Projekt_OpenTK;
 
-public class Ground : IDisposable
+public class Ground : Collidable, IDisposable
 {
     private const string GroundTextureSource = "assets/grass.png";
 
     private const int VertexCount = 128;
     private const int Size        = 8000;
+
+    private static readonly Matrix4 ModelMatrix =
+        Matrix4.Identity * Matrix4.CreateTranslation(-(float) Size / 2, -10, -(float) Size / 2);
 
     private readonly int     _groundIndicesLength;
     private readonly Texture _groundTexture;
@@ -34,6 +37,9 @@ public class Ground : IDisposable
         _shader        = new Shader("Shaders/ground.vert", "Shaders/shader_diffuse_only.frag");
         _groundTexture = new Texture(GroundTextureSource);
     }
+
+    public override Collider ModelCollider { get; } =
+        new(new Vector3(0, -10, 0), new Vector3(Size, 0, Size));
 
     public void Dispose()
     {
@@ -97,8 +103,7 @@ public class Ground : IDisposable
         _shader.Use();
         _shader.SetUniform("view", view);
         _shader.SetUniform("projection", projection);
-        _shader.SetUniform(
-            "model", Matrix4.Identity * Matrix4.CreateTranslation(-(float) Size / 2, -10, -(float) Size / 2));
+        _shader.SetUniform("model", ModelMatrix);
 
         _groundTexture.Bind();
         GL.DrawElements(PrimitiveType.Triangles, _groundIndicesLength, DrawElementsType.UnsignedInt, 0);

@@ -3,20 +3,26 @@ using OpenTK.Mathematics;
 
 namespace Projekt_OpenTK;
 
-public class AirplaneModel : IDisposable
+public class AirplaneModel : Collidable, IDisposable
 {
-    private const    bool             UseMultipleLight  = true;
+    private const    bool             UseMultipleLight  = false;
     private readonly DirectionalLight _directionalLight = new();
     private readonly ModelAssimp      _model            = new("assets/Jet/Jet_adjusted.obj");
 
     private readonly Shader _shader = UseMultipleLight
                                           ? new Shader("Shaders/multiple_lights.vert", "Shaders/multiple_lights.frag")
-                                          : new Shader("Shaders/shader.vert", "Shaders/shader_diffuse_only.frag");
+                                          : new Shader("Shaders/blinn-phong.vert", "Shaders/blinn-phong.frag");
 
-    public readonly float      Speed       = 13.1f;
-    private         Vector3    _position   = Vector3.One;
-    private         Quaternion _rotation   = Quaternion.Identity;
-    public          Matrix4    ModelMatrix = Matrix4.Identity;
+    public readonly float Speed = 13.1f;
+
+    private Vector3    _position   = Vector3.One;
+    private Quaternion _rotation   = Quaternion.Identity;
+    public  Matrix4    ModelMatrix = Matrix4.Identity;
+
+    private Matrix4 RotationMatrix => Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(50)) *
+                                      Matrix4.CreateFromQuaternion(_rotation);
+
+    private Matrix4 TranslationMatrix => Matrix4.CreateTranslation(_position);
 
     public Vector3 Position
     {
@@ -25,11 +31,17 @@ public class AirplaneModel : IDisposable
         {
             _position = value;
             ModelMatrix = Matrix4.Identity *
-                          Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(50)) *
-                          Matrix4.CreateFromQuaternion(_rotation) *
-                          Matrix4.CreateTranslation(_position);
+                          RotationMatrix *
+                          TranslationMatrix;
         }
     }
+
+    private static readonly Vector3 AirplaneSize = new(10.4f, 4.2f, 10f);
+    public sealed override Collider ModelCollider =>
+        new(
+            Position + AirplaneSize / 2.0f,
+            AirplaneSize
+        );
 
     public void Dispose()
     {

@@ -1,4 +1,5 @@
-﻿using FlightSim;
+﻿using System.Runtime.InteropServices.JavaScript;
+using FlightSim;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -26,6 +27,7 @@ public class Window : GameWindow
     private       Ground           _ground;
     private       Vector2          _lastPos;
     private       Skybox           _skybox;
+    private       Vector3          _debugStartLocation = Vector3.Zero;
 
     public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
@@ -105,7 +107,7 @@ public class Window : GameWindow
 
         if (input.IsKeyDown(Keys.Escape)) Close();
 
-        const float cameraSpeed = 20.5f;
+        const float cameraSpeed = 10.5f;
         const float sensitivity = 0.2f;
 
         if (input.IsKeyDown(Keys.W)) _camera.Position += _camera.Front * cameraSpeed * (float) e.Time; // Forward
@@ -119,6 +121,8 @@ public class Window : GameWindow
         if (input.IsKeyDown(Keys.Space)) _camera.Position += _camera.Up * cameraSpeed * (float) e.Time; // Up
 
         if (input.IsKeyDown(Keys.LeftShift)) _camera.Position -= _camera.Up * cameraSpeed * (float) e.Time; // Down
+
+        if (input.IsKeyDown(Keys.K)) _debugStartLocation = _camera.Position;
 
         if (input.IsKeyPressed(Keys.F))
         {
@@ -168,8 +172,19 @@ public class Window : GameWindow
 
         if (_cameraType is CameraType.Airplane)
         {
+            var oldPosition = _airplane.Position;
             _airplane.Position += _airplaneCamera.Front * _airplane.Speed * (float) e.Time;
             _airplane.UpdateRotation(_airplaneCamera.Yaw, _airplaneCamera.Pitch);
+
+            if (_airplane.CheckCollision(_ground))
+                _airplane.Position = oldPosition;
+            foreach (var building in _buildings)
+            {
+                if (!_airplane.CheckCollision(building)) continue;
+                _airplane.Position = oldPosition + _airplaneCamera.Front * _airplane.Speed * (float)e.Time *
+                                     -Vector3.Cross(_airplane.ModelCollider.Center, building.ModelCollider.Center).Normalized();
+                break;
+            }
         }
     }
 

@@ -5,20 +5,22 @@ namespace Projekt_OpenTK;
 
 public class BuildingModel : IDisposable
 {
-    private const    bool             UseMultipleLight  = true;
+    private const bool UseMultipleLight = true;
+
     private readonly DirectionalLight _directionalLight = new()
     {
-        Diffuse = new Vector3(0f, 0f, 0.5f),
+        Diffuse = new Vector3(0f, 0f, 0.5f)
     };
-    private readonly ModelAssimp      _model            = new("assets/building/building.obj");
+
+    private readonly ModelAssimp _model = new("assets/building/building.obj");
 
     private readonly Shader _shader = UseMultipleLight
                                           ? new Shader("Shaders/multiple_lights.vert", "Shaders/multiple_lights.frag")
                                           : new Shader("Shaders/shader.vert", "Shaders/shader_diffuse_only.frag");
 
-    private PointLight _pointLight = new(new Vector3(0f, -100000f, 0f));
-    private Vector3 _position           = Vector3.Zero;
-    public  Matrix4 ModelMatrix         = Matrix4.Identity;
+    private readonly PointLight _pointLight = new(new Vector3(0f, -100000f, 0f));
+    private          Vector3    _position   = Vector3.Zero;
+    public           Matrix4    ModelMatrix = Matrix4.Identity;
 
     public Vector3 Position
     {
@@ -36,6 +38,12 @@ public class BuildingModel : IDisposable
     {
         _shader.Dispose();
     }
+
+    public float[] GetVertices()
+    {
+        return _model.Meshes.SelectMany(mesh => mesh.Vertices).ToArray();
+    }
+
     private void _setupDirectionalLight(Vector3 cameraPosition)
     {
         _shader.SetUniform("viewPos", cameraPosition);
@@ -62,6 +70,7 @@ public class BuildingModel : IDisposable
         _shader.SetUniform("material.specular", new Vector3(1f));
         _shader.SetUniform("material.shininess", new Vector3(1f));
     }
+
     public void Draw(Vector3 cameraPosition, Matrix4 view, Matrix4 projection)
     {
         _shader.Use();
@@ -75,7 +84,7 @@ public class BuildingModel : IDisposable
             _setupDirectionalLight(cameraPosition);
             _setupPointLight(_pointLight);
         }
-        
+
         foreach (var mesh in _model.Meshes)
         {
             mesh.Bind();
