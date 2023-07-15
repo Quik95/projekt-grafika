@@ -95,6 +95,12 @@ public class AirplaneModel : Collidable, IDisposable
             _setupPointLight(pointLight);
             _setupMaterial();
         }
+        else
+        {
+            _shader.SetUniform("ambient_color", new Vector3(244.0f/255.0f, 233.0f/255.0f, 155.0f/255.0f));
+            _shader.SetUniform("diffuse_color", new Vector3(0.1f, 0.1f, 0.1f));
+            _shader.SetUniform("specular_color", new Vector3(1f));
+        }
 
         foreach (var mesh in _model.Meshes)
         {

@@ -8,7 +8,6 @@ out vec3 Normal;
 out vec2 TexCoords;
 
 uniform mat4 model;
-uniform mat4 inverseModel;
 uniform mat4 view;
 uniform mat4 projection;
 

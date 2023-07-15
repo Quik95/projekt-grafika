@@ -1,33 +1,21 @@
-#version 330 core
-layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoord;
+#version 150
 
-out VS_OUT {
-//    vec3 FragPos;
-//    vec3 Normal;
-//    vec2 TexCoords;
-    vec2 aTexCoord;
-    vec4 l;
-    vec4 n;
-    vec4 v;
-} vs_out;
+in vec3 aPos;
+in vec3 aNormal;
+in vec2 aTexCoord;
 
-uniform mat4 model;
+out vec3 v_normal;
+out vec3 v_position;
+out vec2 v_texCoord;
+
 uniform mat4 projection;
 uniform mat4 view;
+uniform mat4 model;
 
-void main()
-{
-    vec4 lp = vec4(0, 1000, 0, -1);
-    vs_out.l = view * lp - view * model * vec4(aPosition, 1.0);
-    vs_out.l = normalize(vs_out.l);
-    
-    vs_out.n = normalize(view * model * vec4(aNormal, 0.0));
-    
-    vs_out.v = vec4(0, 0, 0, 1) - view * model * vec4(aPosition, 1.0);
-    vs_out.v = normalize(vs_out.v);
-    
-    vs_out.aTexCoord = aTexCoord;
-    gl_Position = vec4(aPosition, 1.0) * model * view * projection;
+void main() {
+    mat4 modelview = model * view;
+    v_normal = transpose(inverse(mat3(modelview))) * aNormal;
+    gl_Position = vec4(aPos, 1.0) * modelview * projection;
+    v_position = gl_Position.xyz / gl_Position.w;
+    v_texCoord = aTexCoord;
 }

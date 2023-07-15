@@ -5,7 +5,7 @@ namespace Projekt_OpenTK;
 
 public class BuildingModel : IDisposable
 {
-    private const bool UseMultipleLight = true;
+    private const bool UseMultipleLight = false;
 
     private readonly DirectionalLight _directionalLight = new()
     {
@@ -16,7 +16,7 @@ public class BuildingModel : IDisposable
 
     private readonly Shader _shader = UseMultipleLight
                                           ? new Shader("Shaders/multiple_lights.vert", "Shaders/multiple_lights.frag")
-                                          : new Shader("Shaders/shader.vert", "Shaders/shader_diffuse_only.frag");
+                                          : new Shader("Shaders/blinn-phong.vert", "Shaders/blinn-phong.frag");
 
     private readonly PointLight _pointLight = new(new Vector3(0f, -100000f, 0f));
     private          Vector3    _position   = Vector3.Zero;
@@ -83,6 +83,12 @@ public class BuildingModel : IDisposable
             _setupMaterial();
             _setupDirectionalLight(cameraPosition);
             _setupPointLight(_pointLight);
+        }
+        else
+        {
+            _shader.SetUniform("ambient_color", new Vector3(244.0f/255.0f, 233.0f/255.0f, 155.0f/255.0f));
+            _shader.SetUniform("diffuse_color", new Vector3(0.1f, 0.1f, 0.1f));
+            _shader.SetUniform("specular_color", new Vector3(173f/255f, 216f/255f, 230f/255f));
         }
 
         foreach (var mesh in _model.Meshes)
